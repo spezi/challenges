@@ -10,7 +10,11 @@
     </br>
 
     {% for leg in legs %}
-        <p><a href="/league/{{ games.league.id }}/game/{{games.id}}/leg/{{ leg.id }}">{{leg.number}}</a>
+        <p><a href="/league/{{ games.league.id }}/game/{{games.id}}/leg/{{ leg.id }}">
+            <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
+                {{leg.number}}
+            </button>
+            </a>
             <!--{% for pl in players %}
                 {{pl.player.name}}
             {% endfor %}

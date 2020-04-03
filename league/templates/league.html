@@ -16,7 +16,8 @@
 
 {% for game in games %}
     {% if not game.done %}
-        <p><a href="/league/{{ league.id }}/game/{{game.id}}">{{game.name}}</a></p>
+
+        <p><a href="/league/{{ league.id }}/game/{{game.id}}"><button class="btn btn-primary btn-round">{{game.name}}</button></a></p>
     {% else %}
     <p><a href="/league/{{ league.id }}/game/{{game.id}}">{{game.name}}</a><i class="material-icons">done</i></p> 
     {% endif %}

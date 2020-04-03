@@ -67,6 +67,11 @@ table {
   display: none;
 }
 
+.btn-fab-mini {
+  font-size: 1em !important;
+  line-height: 1em !important;
+}
+
 @media screen and (max-width: 992px) {
  
 }
@@ -90,5 +95,6 @@ table {
     font-size: 1em;
   }
 
+  
   
 }

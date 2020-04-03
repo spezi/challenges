@@ -25,10 +25,14 @@
         <div class="container">
             <div class="section text-center">
                 {% block content %}
-                <h1 class="fancyheader">Leagues<i class="material-icons">add</i></h1>
+                <h1 class="fancyheader">Leagues</h1>
                     <ul class="no_decoration"> 
                         {% for league in leagues %}
-                            <li><a href="/league/{{ league.id }}/">{{league.name}}</a></li>
+                            <li>
+                                <a href="/league/{{ league.id }}/">
+                                    <button class="btn btn-primary btn-round">{{league.name}}</button>
+                                </a>
+                            </li>
                         {% endfor%}
                     </ul>
                 {% endblock%}
