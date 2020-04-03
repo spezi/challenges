@@ -1,3 +1,6 @@
 venv/
 db.sqlite3
 league/migrations/
+league/__pycache__/
+challenges/__pycache__/
+*.pyc
