@@ -1,0 +1,94 @@
+table {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.flexiflex {
+    display: flex; /* or inline-flex */
+    flex-wrap: wrap;
+  }
+
+.flexitem {
+  flex-grow: 1; /* default 0 */
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  border-radius: 6px;
+  padding-bottom: 1em;
+}
+
+.points {
+  font-size: 3em;
+}
+
+.add_point:hover {
+    cursor: pointer;
+}
+
+.darts {
+  padding: 0px;
+  list-style-type: none;
+  display: inline-flex;
+}
+
+.counterinput {
+  width: 100%;
+}
+
+.counterflex {
+  display: inline-flex; /* or inline-flex */
+  flex-wrap: wrap;
+}
+
+.counterbtn {
+  width: 23%;
+  margin-left: 1%;
+  margin-right: 1%;
+  padding-right: 0px !important;
+  padding-left: 0px !important;
+}
+
+.fancyheader {
+  font-family: 'Gochi Hand', cursive;
+}
+
+.no_decoration {
+  list-style-type: none;
+}
+
+
+.activeplayer {
+  background-color: aquamarine;
+}
+
+.thrown {
+  color: cadetblue;
+}
+
+#adduserform {
+  display: none;
+}
+
+@media screen and (max-width: 992px) {
+ 
+}
+
+/* On screens that are 600px or less, set the background color to olive */
+@media screen and (max-width: 600px) {
+  .fancyheader {
+    font-size: 1em;
+  }
+
+  .section {
+    padding: 20px 0px;
+  }
+
+  .flexitem h2 {
+    font-size: 1.3em;
+    margin-top: 0px;
+  }
+
+  .points {
+    font-size: 1em;
+  }
+
+  
+}

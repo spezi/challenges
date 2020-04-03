@@ -1,0 +1,26 @@
+        <div class="btn-group flexiflex">
+            <input type="hidden" class="text-center form-control-lg mb-2 counterinput" id="setpoints">
+        </div>
+
+        <div class="counterflex ">
+        {% for i in counter %}
+            <!--<button type="button" 
+            class="counterbtn btn btn-secondary btn-lg" 
+            onclick="document.getElementById('code').value=document.getElementById('code').value + {{i}};">
+            {{i}}
+            </button>-->
+            <button type="button"
+                class="counterbtn numberbtn btn btn-secondary btn-lg"
+                data-value="{{i}}">
+                {{i}}
+            </button>
+
+        {% endfor%}
+            <button type="button" class="btn_clear btn btn-primary btn-lg">clear</button>
+            <button type="button" class="btn_double btn btn-primary btn-lg" data-value="x2">double</button>
+            <button type="button" class="btn_tripple btn btn-primary btn-lg" data-value="x3">tripple</button>
+            <button type="button" class="numberbtn btn btn-primary btn-lg" data-value="25">bull</button>
+            <button type="button" class="btn_undo btn btn-primary btn-lg"><i class="material-icons">undo</i>
+            </button>
+        </div>
+        

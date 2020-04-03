@@ -1,0 +1,9 @@
+<div class="form-group">
+    <label for="exampleFormControlSelect1">playerselect</label>
+    <select class="form-control selectpicker" data-style="btn btn-link" id="exampleFormControlSelect1">
+      {% for player in players %}
+        <option>{{player}}</option> 
+      {% endfor%}
+    </select>
+</div>
+

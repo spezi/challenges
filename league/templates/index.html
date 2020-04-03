@@ -1,0 +1,488 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>{{title}}</title>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <!--     Fonts and icons     -->
+  <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons|Gochi+Hand:300,400:" />
+  <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css">-->
+  <link rel="stylesheet" href="{% static 'league/font-awesome.min.css' %}">
+  <!-- Material Kit CSS -->
+  <link href="{% static 'league/material-kit/assets/css/material-kit.css' %}" rel="stylesheet" />
+  <link href="{% static 'league/spezi.css' %}" rel="stylesheet" />
+
+</head>
+
+<body>
+
+    <div class="main main-raised">
+        <div class="container">
+            <div class="section text-center">
+                {% block content %}
+                <h1 class="fancyheader">Leagues<i class="material-icons">add</i></h1>
+                    <ul class="no_decoration"> 
+                        {% for league in leagues %}
+                            <li><a href="/league/{{ league.id }}/">{{league.name}}</a></li>
+                        {% endfor%}
+                    </ul>
+                {% endblock%}
+            </div>
+        </div>
+    </div>
+
+    {% include "js.html" %}
+
+    {% include "add_user_modal.html" %}
+
+    <script>
+        $( document ).ready(function() {
+
+            function getCookie(name) {
+                    var cookieValue = null;
+                    if (document.cookie && document.cookie !== '') {
+                        var cookies = document.cookie.split(';');
+                        for (var i = 0; i < cookies.length; i++) {
+                            var cookie = cookies[i].trim();
+                            // Does this cookie string begin with the name we want?
+                            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                                break;
+                            }
+                        }
+                    }
+                    return cookieValue;
+                }
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+            
+            var csrftoken = getCookie('csrftoken');
+
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+            
+            console.log( "ready!" );
+
+            function request_backend(params) {
+                $.getJSON( params.url, params.body )
+                    .done(function( json ) {
+                        console.log( "JSON Data: " + json.users[ 3 ].name );
+                    })
+                    .fail(function( jqxhr, textStatus, error ) {
+                        var err = textStatus + ", " + error;
+                        console.log( "Request Failed: " + err );
+                    });
+            }
+            
+            $('.add_point').on('click', function(){
+                console.log("add")
+            });
+
+            $('#addplayer').on('click', function(){
+                console.log("add player");
+                params = {}
+                params.url = "addplayer"
+                params.body = { league: 1, player: 1 };
+                
+                request_backend(params);
+                return false;
+
+            });
+
+            //zähler
+            var multiply = 1;
+            var lastmultiply = 1;
+            var value = 0;
+            var points = 'none';
+            var dart_count = 0;
+
+            var set_double = false
+            var set_tripple = false
+            
+            var activeplayer = null
+            var firstplayer = null
+            var last_states = []
+            var last_state = {}
+
+            var players = $('.player')       
+            
+            //console.log(players)
+
+
+            players.on('click', function(){
+                active_player_index = $(this).index();
+                console.log(active_player_index)
+                $('.player').unbind();
+                game_on(active_player_index);
+            });
+
+
+            if ($(".activeplayer")) {
+                console.log("na da iss doch einer noch drann")
+                
+                players.each(function( index ) {
+                    if($(this).hasClass("activeplayer")) {
+                        active_player_index = index
+                        console.log(active_player_index)
+                        game_on(active_player_index);
+                        $('.player').unbind();
+                    }
+                });
+               
+               
+                
+
+            }
+            
+            
+
+            
+            
+            function game_on(active_player_index) {
+                activeplayer = $(players[active_player_index]);
+                firstplayer = activeplayer
+                $(".activeplayer").removeClass("activeplayer");
+                activeplayer.addClass("activeplayer");
+                throw_darts();
+            }
+
+            function throw_darts() {
+                var point_setter = $("#setpoints");
+
+                var round = { 
+                    first: 'none',
+                    f_double: false,
+                    f_tripple: false,
+                    second: 'none',
+                    s_double: false,
+                    s_tripple: false,
+                    third: 'none',
+                    t_double: false,
+                    t_tripple: false, 
+                }  
+                
+                var darts = $(activeplayer).find(".dart");
+                console.log(point_setter);
+   
+                point_setter.change(function() {
+
+                    $(darts[dart_count]).addClass("thrown");
+                    let last_dart_count = dart_count
+                    dart_count++;
+                    
+                    var playerpoints = $(activeplayer).find(".points");
+                    console.log(playerpoints[0].innerText);
+
+                    if(dart_count < 4) {
+                        if(dart_count == 1) {
+                            last_states.push({ player : activeplayer.index(), points : playerpoints[0].innerText, dart: last_dart_count})
+                            //console.log("player index:")
+                            //console.log(activeplayer.index()) 
+                            //console.log(firstplayer.index()) 
+                            
+                            round.first = parseInt($(this).val());
+                            round.f_double = set_double; 
+                            round.f_tripple = set_tripple; 
+
+                            set_double = false;
+                            set_tripple = false;
+
+                            let newpoints = playerpoints[0].innerText - $(this).val();
+                            if(newpoints > 0) {
+                                playerpoints[0].innerText = newpoints; 
+                            } else if ( newpoints == 0) {
+                                if(check_win(newpoints, playerpoints[0])){
+                                    round.second = 0
+                                    round.third = 0
+                                    throw_round(round)
+                                };
+                            }
+                        } 
+                        else if (dart_count == 2) {
+                            last_states.push({ player : activeplayer.index(), points : playerpoints[0].innerText, dart: last_dart_count})
+                            
+                            round.second = parseInt($(this).val());
+                            round.s_double = set_double; 
+                            round.s_tripple = set_tripple; 
+
+                            set_double = false;
+                            set_tripple = false;
+
+                            let newpoints = playerpoints[0].innerText - $(this).val();
+                            if(newpoints > 0) {
+                                playerpoints[0].innerText = newpoints; 
+                            } else if ( newpoints == 0) {
+                                if(check_win(newpoints, playerpoints[0])){
+                                    round.third = 0
+                                    throw_round(round)
+                                };
+                            };  
+                        } 
+                        else if (dart_count == 3) {
+                            last_states.push({ player : activeplayer.index(), points : playerpoints[0].innerText, dart: last_dart_count})
+                            
+                            round.third = parseInt($(this).val());
+                            round.t_double = set_double; 
+                            round.t_tripple = set_tripple; 
+
+                            set_double = false;
+                            set_tripple = false;
+
+                            // zum server werfen
+                            if (throw_round(round)) {
+
+                                let newpoints = playerpoints[0].innerText - $(this).val();
+                                
+                                if(newpoints > 0) {
+                                    playerpoints[0].innerText = newpoints; 
+                                } else if ( newpoints == 1) {
+                                    loose();
+                                } else if ( newpoints == 0) {
+                                    check_win(newpoints, playerpoints[0]);
+                                }
+                                
+                                dart_count = 0;
+                                
+                                if(active_player_index < players.length-1 ) {
+                                    active_player_index++;
+                                } else {
+                                    active_player_index = 0;
+                                }
+
+                                activeplayer = $(players[active_player_index]);
+                                $(".activeplayer").removeClass("activeplayer");
+                                activeplayer.addClass("activeplayer");
+                                darts = $(activeplayer).find(".dart");
+
+                                if(activeplayer.index() == firstplayer.index()) $(".thrown").removeClass("thrown");
+                                //$(".thrown").removeClass("thrown");
+
+                            }
+                        }
+                            
+                        //console.log(players.length)
+                        //console.log(active_player_index)
+                        //console.log(last_states)
+
+                    }
+                });
+
+                function loose() {
+                    console.log("you loosed");  
+                }
+                
+                function check_win(newpoints, playerpoints) {
+                    console.log(lastmultiply);
+                    if(lastmultiply == 2) {
+                        playerpoints.innerText = newpoints;
+                        alert("Wir haben einen Sieger!!");
+                        //update_game("win");
+                        return true
+                    } else {
+                        return false
+                    }
+                };
+
+                function throw_round(round) {
+                    console.log("throw round!!");
+                    console.log(round);
+                    
+                    
+
+                    let throw_data = {
+                            "what" : "throw",
+                            "round" : round, 
+                            "leg_id" : parseInt($('#leg_id').val()), 
+                            "userid" : $(activeplayer).data("userid"),
+                            }
+
+                    console.log(throw_data)
+        
+                    $.ajax({
+                        url: "{% url 'ajaxapi' %}",
+                        dataType : 'json',
+                        method: "POST",
+                        data: JSON.stringify(throw_data),
+                        cache: false,
+                        success: function(data) {
+                            console.log(data)
+                            ajax_success = true
+                        }
+                    });
+                    
+                    return true;
+                }
+
+                /*function update_game(what) {
+         
+                    $.ajax({
+                        url: "{% url 'ajaxapi' %}",
+                        dataType : 'json',
+                        method: "POST",
+                        data: {
+                            "what" : what, 
+                            "gameid" : $(gameid).val(), 
+                            "userid" : $(activeplayer).data("userid"),
+                            },
+                        cache: false,
+                        success: function(data) {
+                            console.log(data)
+                        }
+                    });
+                };*/
+
+                
+            
+            }
+
+                // Bedienung
+
+                $('.btn_double').on('click', function(){
+                    multiply = 2
+                    set_double = true
+                });
+            
+                $('.btn_tripple').on('click', function(){
+                    multiply = 3
+                    set_tripple = true
+                });
+
+                $('.btn_clear').on('click', function(){
+                    $("#setpoints").val('');
+                });
+                
+
+                $('.numberbtn').on('click', function(){
+                    //console.log("click number:")
+                    //console.log($(this).data("value"))
+                    let count = $(this).data("value") * multiply
+                    $("#setpoints").val(count);
+                    points = count;
+                    lastmultiply = multiply;
+                    multiply = 1   
+                    $("#setpoints").trigger("change"); 
+                });
+                
+                $('.btn_undo').on('click', function(){
+                    last_state = last_states.pop()
+                    reset_last_state()
+                });
+                
+                function reset_last_state() {
+                    console.log(last_state)
+                    
+                    activeplayer = $(players[last_state.player]);
+                    active_player_index = last_state.player;
+                    
+                    var playerpoints = $(activeplayer).find(".points");
+                    playerpoints[0].innerText = last_state.points
+
+                    var darts = $(activeplayer).find(".dart");
+                    $(darts[last_state.dart]).removeClass("thrown");
+                    
+                    $(".activeplayer").removeClass("activeplayer");
+                    activeplayer.addClass("activeplayer");
+                    
+                    dart_count = last_state.dart;
+
+                    if(last_state.dart == 1) $(darts[0]).addClass("thrown");
+                    if(last_state.dart == 2) {
+                        $(darts[0]).addClass("thrown");
+                        $(darts[1]).addClass("thrown");
+                    }
+
+                }
+                
+                $('#addplayers').on('click', function initmodal(what) {
+                    console.log("add player");
+                    $(this).hide();
+                    $("#adduserform").show();
+                    //$(document).find('.modal-form-body').html('')
+                    //addplayerselect();
+                    //activate_submit();
+                });
+
+                // Add player per modal .. kaputt
+
+                /*function addplayerselect() {
+                    let modal_body = $(document).find('.modal-body');
+                    let req_url = window.location.pathname + "addplayerform"; 
+                    $.get( req_url, function( data ) {
+                        $( modal_body ).find('.modal-form-body').append( data );
+                        $($( modal_body ).find('#addinlineplayers')[0]).on('click', function(){
+                            console.log("another player")
+                            $.get( req_url, function( data ) {
+                                $( modal_body ).find('.modal-form-body').append( data );
+                            });
+                        })
+                    });
+                }*/
+
+                /*function activate_submit(){
+                    // Submit post on submit
+                    let modal_footer = $(document).find('.modal-footer'); 
+                    let modal_form_body = $(document).find('.modal-form-body'); 
+                    $(modal_footer).find('#submit-player').on('click', function(event){
+                        event.preventDefault();
+                        let submit_able = true
+                        
+                        if($(modal_form_body).find(".form-group").length < 2) {
+                            alert("du willst also alleine spielen oder wat?");
+                            submit_able = false
+                        }
+                        
+                        let added_players = $(modal_form_body).find('select');
+                        console.log(added_players.length)
+                        let player_set = new Set()
+                        
+                        $.each( added_players, function( key, value ) {
+                            let what_player = $(value).children("option:selected").val()
+                            if(player_set.has(what_player)) {
+                                alert("Leude!! Jeder nur ein mal ey!!")
+                                submit_able = false
+                            } else {
+                                player_set.add(what_player)
+                            }
+                            
+                        });
+                        
+                        console.log(submit_able)
+                        if(submit_able) {
+                            console.log(player_set)
+                            console.log("form submitted!")  // sanity check
+                            $.ajax({
+                                url: "{% url 'ajaxapi' %}",
+                                dataType : 'json',
+                                method: "POST",
+                                data: { "test" : "data" },
+                                cache: false,
+                                success: function(data) {
+                                    $('#exampleModalLong').modal('hide');
+                                }
+                            });
+                        } 
+                        //create_post();
+                    });
+
+                };*/
+
+            
+
+        });
+    </script> 
+
+</body>
+</html>

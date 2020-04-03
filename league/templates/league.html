@@ -1,0 +1,58 @@
+{% extends "index.html" %}
+{% load render_table from django_tables2 %}
+
+{% block content %}
+
+<a id="back" href="/league"><i class="material-icons">keyboard_arrow_left</i></a>
+
+
+<h1 class="fancyheader">
+    League {{league.name}} 
+</h1>
+
+<h2>
+    Games
+</h2>
+
+{% for game in games %}
+    {% if not game.done %}
+        <p><a href="/league/{{ league.id }}/game/{{game.id}}">{{game.name}}</a></p>
+    {% else %}
+    <p><a href="/league/{{ league.id }}/game/{{game.id}}">{{game.name}}</a><i class="material-icons">done</i></p> 
+    {% endif %}
+{% endfor%}
+
+<!--
+<ul class="no_decoration">
+    {% for game in games %}
+        <li><a href="/league/{{ league.id }}/game/{{game.id}}">{{game.name}}</a> : Liga: {{game.league}} :
+        Spieler: 
+        {% for player in game.players %}
+            {{player.player.name}} : {{player.player.points}}
+        {% endfor%}
+        </li>
+    {% endfor%}
+</ul>
+
+{% for player in players %}
+<ul class="no_decoration">
+    <li>{{player.player}}</li>
+</ul>
+{% endfor%}
+-->
+
+{% comment %} 
+    {% render_table league_table %}
+{% endcomment %}
+
+{% render_table table %}
+<div id="adduserform">
+    <form action="" method="post">
+        {% csrf_token %}
+        {{  add_user_form   }}
+        <button class="btn btn-primary btn-sm" type="submit" value="Submit"><i class="material-icons">add</i></button>
+    </form>
+</div>
+<button id="addplayers" class="btn btn-primary btn-sm"><i class="material-icons">add</i></button>
+<!--<a id="addplayers" href="addplayers" data-toggle="modal" data-target="#exampleModalLong" ><i class="material-icons">add</i></a>-->
+{% endblock%}

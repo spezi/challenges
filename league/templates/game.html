@@ -1,0 +1,45 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+    <input type="hidden" id="gameid" name="gameid" value="{{games.id}}">
+
+    <h1 class="fancyheader">{{games.name}} -> Legs</h1>
+    <small><a href="/league/{{ games.league.id }}">{{games.league}}</a></small>
+    <hr>
+    </br>
+
+    {% for leg in legs %}
+        <p><a href="/league/{{ games.league.id }}/game/{{games.id}}/leg/{{ leg.id }}">{{leg.number}}</a>
+            <!--{% for pl in players %}
+                {{pl.player.name}}
+            {% endfor %}
+            -->
+            {% for player in leg.player %}
+                {{player.name}}:{{player.sets}}
+            {% endfor %}
+
+        </p>
+    {% endfor %}
+
+    <!--
+    {% for player in game.players %}
+        <p><i class="material-icons">face</i>{{player.player.name}} : 
+            {% for points in game.points %} 
+                {% if points.player_id ==  player.player.id %}
+                    {{points.points}}
+                {% endif %}
+            {% endfor%}
+            <i data-user="{{player.player.id}}" class="add_point material-icons">plus_one</i>
+        </p>
+    {% endfor%}
+    -->
+    <div class="flexiflex"> 
+
+    </div>
+
+
+
+    
+
+{% endblock%}        
