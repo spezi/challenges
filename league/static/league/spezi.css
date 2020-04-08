@@ -17,11 +17,13 @@ table {
 
 .points {
   font-size: 3em;
+  font-weight: bolder;
 }
 
 .add_point:hover {
     cursor: pointer;
 }
+
 
 .darts {
   padding: 0px;
@@ -52,6 +54,7 @@ table {
 
 .no_decoration {
   list-style-type: none;
+  padding: 0px;
 }
 
 
@@ -83,12 +86,15 @@ table {
 
 /* On screens that are 600px or less, set the background color to olive */
 @media screen and (max-width: 600px) {
+  .flexiflex {
+    display: inline;
+  }
   .fancyheader {
     font-size: 1em;
   }
 
   .section {
-    padding: 20px 0px;
+    padding: 30px 0px;
   }
 
   .flexitem h2 {
@@ -100,6 +106,44 @@ table {
     font-size: 1em;
   }
 
-  
+  .flexitem {
+    padding: 0px;
+  }
+
+  .flexitem.player {
+    margin: 3px;
+  }
+
+  .flexitem.player div {
+    display: inline-flex;
+    align-items: center;
+  } 
+
+  .player_item {
+    margin-right: 1em;
+  }
+
+  .player_item * {
+    padding: 0px;
+    margin: 0px;
+    font-size: 1.3em;
+  }
+
+  .player_item .darts .dart {
+    font-size: 0.8em;
+  }
+
+  .container {
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .fancyheader {
+    display: none;
+  }
+
+  .setpoints {
+    display: none;
+  }
   
 }

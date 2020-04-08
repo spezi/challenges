@@ -1,5 +1,5 @@
 
-from .models import League, Games, GameMembership, Points, Player
+from .models import *
 
 class LeaguePlayer():
     id = 0
@@ -89,7 +89,7 @@ class Statistic():
 
         player_data_rows = ""
 
-        games = Games.objects.filter(league=league.id)
-        player_data_rows = self.calc_rows_player_data(league_players, games)
+        #games = Games.objects.filter(league=league.id)
+        #player_data_rows = self.calc_rows_player_data(league_players, games)
         
         return player_data_rows

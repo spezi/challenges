@@ -14,37 +14,10 @@
     Games
 </h2>
 
-{% for game in games %}
-    {% if not game.done %}
+{% for game in games%}
+<p><a href="/league/{{ league.id }}/game/{{game.id}}"><button class="btn btn-primary btn-round">{{game.name}}</button></a></p>
+{% endfor %}
 
-        <p><a href="/league/{{ league.id }}/game/{{game.id}}"><button class="btn btn-primary btn-round">{{game.name}}</button></a></p>
-    {% else %}
-    <p><a href="/league/{{ league.id }}/game/{{game.id}}">{{game.name}}</a><i class="material-icons">done</i></p> 
-    {% endif %}
-{% endfor%}
-
-<!--
-<ul class="no_decoration">
-    {% for game in games %}
-        <li><a href="/league/{{ league.id }}/game/{{game.id}}">{{game.name}}</a> : Liga: {{game.league}} :
-        Spieler: 
-        {% for player in game.players %}
-            {{player.player.name}} : {{player.player.points}}
-        {% endfor%}
-        </li>
-    {% endfor%}
-</ul>
-
-{% for player in players %}
-<ul class="no_decoration">
-    <li>{{player.player}}</li>
-</ul>
-{% endfor%}
--->
-
-{% comment %} 
-    {% render_table league_table %}
-{% endcomment %}
 
 {% render_table table %}
 <div id="adduserform">
@@ -57,3 +30,5 @@
 <button id="addplayers" class="btn btn-primary btn-sm"><i class="material-icons">add</i></button>
 <!--<a id="addplayers" href="addplayers" data-toggle="modal" data-target="#exampleModalLong" ><i class="material-icons">add</i></a>-->
 {% endblock%}
+
+

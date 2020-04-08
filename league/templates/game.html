@@ -2,15 +2,15 @@
 
 {% block content %}
 
-    <input type="hidden" id="gameid" name="gameid" value="{{games.id}}">
+    <input type="hidden" id="gameid" name="gameid" value="{{game.id}}">
 
-    <h1 class="fancyheader">{{games.name}} -> Legs</h1>
-    <small><a href="/league/{{ games.league.id }}">{{games.league}}</a></small>
+    <h1 class="fancyheader">{{game.name}} -> Legs</h1>
+    <small><a href="/league/{{ league.id }}">{{league}}</a></small>
     <hr>
     </br>
 
     {% for leg in legs %}
-        <p><a href="/league/{{ games.league.id }}/game/{{games.id}}/leg/{{ leg.id }}">
+        <p><a href="/league/{{ league.id }}/game/{{game.id}}/leg/{{ leg.id }}">
             <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
                 {{leg.number}}
             </button>
@@ -19,8 +19,9 @@
                 {{pl.player.name}}
             {% endfor %}
             -->
-            {% for player in leg.player %}
-                {{player.name}}:{{player.sets}}
+            {% for player in leg.playerdata %}
+            <!--{% if player.winner %}<i class="material-icons">emoji_events</i>{% endif %} {{player.name}}:{{player.sets}}-->
+                {{player.name}} : {{player.darts|length}}
             {% endfor %}
 
         </p>
