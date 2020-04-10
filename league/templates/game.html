@@ -11,7 +11,11 @@
 
     {% for leg in legs %}
         <p><a href="/league/{{ league.id }}/game/{{game.id}}/leg/{{ leg.id }}">
-            <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
+            {% if leg.winner %}
+                <button class="btn btn-success btn-fab btn-fab-mini btn-round">
+            {% else %}
+                <button class="btn btn-primary btn-fab btn-fab-mini btn-round">
+            {% endif %}
                 {{leg.number}}
             </button>
             </a>
@@ -22,7 +26,10 @@
 
             {% for player in leg.playerdata %}
             <!--{% if player.winner %}<i class="material-icons">emoji_events</i>{% endif %} {{player.name}}:{{player.sets}}-->
-                {{player.name}} : {{player.darts|length}}
+                {% if player.id == leg.winner %}
+                    <i class="material-icons">emoji_events</i>
+                {% endif %}
+                    {{player.name}} : {{player.darts|length}}
             {% endfor %}
 
         </p>

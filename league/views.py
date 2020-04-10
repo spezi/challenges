@@ -5,7 +5,7 @@ from .models import *
 from .forms import *
 from django.http import JsonResponse
 from .tables import LeagueTable
-from .helper import Statistic, CheckState
+from .helper import Statistic
 
 
 import json
@@ -34,7 +34,7 @@ class LeagueView(TemplateView):
 
 	def get_or_create_games(self):
 		
-		print(len(self.league_members))
+		#print(len(self.league_members))
 		#get league player
 		league_player_id_list = []
 		for league_member in self.league_members:
@@ -54,8 +54,8 @@ class LeagueView(TemplateView):
 		jeder_gegen_jeden_list = [] 
 		[jeder_gegen_jeden_list.append(x) for x in pre_game_list if x not in jeder_gegen_jeden_list] 
 		
-		print("nötige begegnungen:")
-		print(jeder_gegen_jeden_list)
+		#print("nötige begegnungen:")
+		#print(jeder_gegen_jeden_list)
 
 		#check games created
 		league_games = LeagueGames.objects.filter(league=self.league_id)
@@ -91,7 +91,7 @@ class LeagueView(TemplateView):
 		for league_game in league_games:
 			that_league_game = Game.objects.get(pk=league_game.id)
 			games_out.append(that_league_game)
-		print(games_out)
+		#print(games_out)
 		return games_out
 
 	def add_player(self, name, league_id):
@@ -136,7 +136,9 @@ class LeagueView(TemplateView):
 		#print(self.league_members)
 		
 		statistic = Statistic()
-		tabledata = statistic.calc_league_player_tabledata(self.league, self.league_members)
+		tabledata = statistic.calc_league_player_tabledata(self.league)
+		#print("tabledata")
+		#print(tabledata)
 
 		context['league'] = self.league 
 		context['games'] = self.get_or_create_games()
@@ -189,6 +191,7 @@ class GameView(TemplateView):
 			for this_player in self.players:
 				out_player = {}
 				this_player.darts = Dart.objects.filter(player=this_player, leg=this_lag)
+				out_player["id"] = this_player.id
 				out_player["name"] = this_player.name
 				out_player["darts"] = this_player.darts
 				this_lag.playerdata.append(out_player)
@@ -206,6 +209,8 @@ class GameView(TemplateView):
 class LegView(TemplateView):
 	template_name = 'leg.html'
 	players = []
+	overthrowed = False
+	win = False 
 
 	def checkin(self):
 		print(self.throw)
@@ -232,19 +237,65 @@ class LegView(TemplateView):
 		#player_points = Points.objects.get(player=self.throw['player'], leg=self.throw['leg']) 
 		#print(player_points.points)
 
-	def calc_player_points(self):
-		points = self.current_league.mode.points	
-		for dart in self.current_player_darts:
+	def scoring(self):
+		init_points = self.current_league.mode.points
+		points = init_points
+		out_points = points
+		self.overthrowed = False
+
+		for index, dart in enumerate(self.current_player_darts):
 			#print(dart.points_calc)
-			points = points - dart.points_calc
-		return points
+			if not dart.overthrowed:
+				points = points - dart.points_calc
+			#print(self.current_player.name)
+			#print(points)
+			if points == 0:
+				if dart.double:
+					print("wir haben einen Sieger!!")
+					self.win = True
+					self.current_leg.winner = self.current_player.id
+					self.current_leg.save()
+				else:
+					print("kein double out !!")
+					points = points + dart.points_calc
+					
+			elif points < 2:
+				print('überworfen')
+				thatround = self.get_player_throwed()
+				print(thatround)
+				
+				#überworfene taggen und zur not die davor auch 
+				#um punkte vor der runde wieder herzustellen 
+				if thatround['first']:
+					dart.overthrowed = True
+					dart.save()
+					self.overthrowed = True
+				if thatround['second']:
+					dart2 = self.current_player_darts[index-1]
+					dart2.overthrowed = True
+					dart2.save()
+					self.overthrowed = True
+				if thatround['third']:
+					dart3 = self.current_player_darts[index-2]
+					dart3.overthrowed = True
+					dart3.save()
+					self.overthrowed = True
+				
+		for dart_out in self.current_player_darts:			
+			if not dart_out.overthrowed:
+				out_points = out_points - dart_out.points_calc 
+		
+		return out_points
+		
 
 	def get_player_throwed(self):
-		print(len(self.current_player_darts))
+		#print(len(self.current_player_darts))
 		
 		first = ''
 		second = ''
 		third = ''
+
+		self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
 
 		throwed = len(self.current_player_darts) % 3 # 0 1 2 
 		if throwed == 1:
@@ -260,13 +311,16 @@ class LegView(TemplateView):
 		return throwed_darts
 
 	def build_player_response(self):
-		points = self.calc_player_points()
+		points = self.scoring()
 		throwed = self.get_player_throwed()
 		response = {
 			'player': self.throw["player"], 
 			'points': points, 
 			'throwed': throwed, 
-			'success': True }
+			'success': True, 
+			'overthrowed': self.overthrowed,
+			'win': self.win,
+			}
 		return response
 
 	def post(self, request, *args, **kwargs):
@@ -278,20 +332,30 @@ class LegView(TemplateView):
 
 		self.current_league = League.objects.get(pk=kwargs['league_id']) # um den modus zu bekommen
 		self.current_leg = Leg.objects.get(pk=kwargs['leg_id'])
-		self.current_player = Player.objects.get(pk=self.throw['player'])
-		self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
-		
-		try:
-			if self.throw["player"]:
-				if self.checkin(): 
-					#return JsonResponse({'success': True })
-					response = self.build_player_response()
-					print(response)
-					return JsonResponse(response) 
-				else:
-					return JsonResponse({'success': False, 'reason': 'checkin false' })
-		except:
-			return JsonResponse({'success': False })
+
+		if self.throw['what'] == 'throw':
+			self.current_player = Player.objects.get(pk=self.throw['player'])
+			self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
+			
+			try:
+				if self.throw["player"]:
+					if self.checkin(): 
+						#return JsonResponse({'success': True })
+						response = self.build_player_response()
+						print(response)
+						return JsonResponse(response) 
+					else:
+						return JsonResponse({'success': False, 'reason': 'checkin false' })
+			except:
+				return JsonResponse({'success': False })
+		elif self.throw['what'] == 'undo':
+			print(self.current_leg.id)
+			try:
+				lastdart = Dart.objects.filter(leg=self.current_leg).last()
+				lastdart.delete()
+				return JsonResponse({'success': True })
+			except:
+				return JsonResponse({'success': False })
 
 	def get_context_data(self, *args, league_id, game_id, leg_id, **kwargs):
 
@@ -312,7 +376,7 @@ class LegView(TemplateView):
 			#player_points, created = Points.objects.get_or_create(leg=self.leg, player=player, defaults={'point': self.league.mode.points})
 			self.current_player = player
 			self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
-			player_points = self.calc_player_points()
+			player_points = self.scoring()
 			throwed = self.get_player_throwed()
 			
 			if throwed['third'] == 'thrown':
@@ -330,33 +394,20 @@ class LegView(TemplateView):
 				'throwed': throwed
 				}
 			self.players.append(playerdata)
-		#self.players= []
-		#for player in players:
-			#self.players.append(player.player)
-
-		#print(self.players)
-
+	
+		#bei neu laden den richtigen player aktivieren
 		lastdart = Dart.objects.filter(leg=self.current_leg).last()
 		if activeplayer == 'none' and lastdart:
 			#print(len(self.players))
 			for i in range(len(self.players)):
-				print('###')
-				print(i)
-				print(lastdart.player.id)
-				print(self.players[i]['id'])
-				print('###')
-				
 				if self.players[i]['id'] == lastdart.player.id:
 					j = i + 1
-
 					if i == len(self.players) - 1: 
 						 j = 0
 					
 
 					activeplayer = self.players[j]['id']
-					#print(activeplayer)
-			#activeplayer = lastdart.player
-		#print(activeplayer)
+
 
 		context = super(LegView, self).get_context_data(*args, **kwargs)
 		context['root'] = league_id

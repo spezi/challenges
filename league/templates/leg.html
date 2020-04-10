@@ -4,6 +4,7 @@
 
     <input type="hidden" id="gameid" name="gameid" value="{{game.id}}">
     <input type="hidden" id="leg_id" name="leg_id" value="{{leg.id}}">
+    <input type="hidden" id="winner_id" name="winner_id" value="{{leg.winner}}">
 
     <div class="leg_header">
         <h1 class="fancyheader">{{game.name}} -> {{leg.number}}</h1>
@@ -28,7 +29,11 @@
                         </div>
                         <div class="player_item"> 
                             <p class="points">
-                                {{player.points}}
+                                {% if leg.winner == player.id %}
+                                    <i class="material-icons">emoji_events</i>
+                                {% else %}
+                                    {{player.points}}
+                                {% endif %}
                             </p>
                         </div>
                    

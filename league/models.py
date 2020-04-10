@@ -58,6 +58,7 @@ class GameMembership(models.Model):
 class Leg(models.Model):
     number = models.IntegerField(null=True)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
+    winner = models.IntegerField(blank=True, null=True)
 
 class Points(models.Model): #fliegt evtl raus
     points = models.IntegerField(null=True, default=501)
@@ -71,6 +72,7 @@ class Dart(models.Model):
     tripple = models.BooleanField(default=False)
     points = models.IntegerField(null=True)
     points_calc = models.IntegerField(null=True)
+    overthrowed = models.BooleanField(default=False) 
 
 class League(models.Model):
     name = models.CharField(max_length=128)

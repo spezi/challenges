@@ -113,7 +113,7 @@
                 
                 var count = $(this).data('value');
                 this_throw.player = $(".activeplayer").find('.player_id').val();
-                this_throw.player_index = 
+                this_throw.what = 'throw'
                 this_throw.points = count;
                 this_throw.double = set_double;
                 this_throw.tripple = set_tripple;
@@ -122,25 +122,32 @@
                 
                 throw_dart(this_throw)
             });
-
+            
+            // deaktivieren wenn es einen gewinner gibt
+            winner = $('#winner_id').val()
+            if (winner != 'None') $('.numberbtn').unbind();
+            
 
             function throw_dart(this_throw) {
                 console.log(this_throw);
                 
                 var last_player = activeplayer
                 
-                
-
                 $.ajax({
                         url: "",
                         dataType : 'json',
                         method: "POST",
                         data: JSON.stringify(this_throw),
-                        async: false,
+                        //async: false,
                         cache: false,
                         success: function(data) {
+                            // reload wenn gewonnen 
+                            if(data.win) window.location.reload()
+                            
                             console.log(data.points)
-                            $(activeplayer).find('.points').text(data.points)
+                            if(data.overthrowed == false) {
+                                $(activeplayer).find('.points').text(data.points)
+                            }
                             console.log(data.throwed)
                             $(".thrown").removeClass("thrown");
                             var darts = $(activeplayer).find('.dart')
@@ -152,7 +159,7 @@
                                 $(darts[1]).addClass("thrown");
                             }
                             // change active player
-                            if(data.throwed.third) {
+                            if(data.throwed.third || data.overthrowed) {
                                 $(darts[0]).addClass("thrown");
                                 $(darts[1]).addClass("thrown");
                                 $(darts[2]).addClass("thrown");
@@ -170,5 +177,23 @@
                         }
                     }); 
             }
+
+            $('.btn_undo').on('click', function(){
+                    console.log("undo .. ")
+                    undo = init_throw
+                    undo.what = 'undo' 
+                    $.ajax({
+                        url: "",
+                        dataType : 'json',
+                        method: "POST",
+                        data: JSON.stringify(undo),
+                        //async: false,
+                        cache: false,
+                        success: function(data) {
+                            console.log(data.success)
+                            if(data.success) window.location.reload();    
+                        }
+                    }); 
+                });
     });
 </script> 
