@@ -111,7 +111,7 @@
             $('.numberbtn').on('click', function(){
                 this_throw = init_throw;
                 
-                let count = $(this).data("value");
+                var count = $(this).data('value');
                 this_throw.player = $(".activeplayer").find('.player_id').val();
                 this_throw.player_index = 
                 this_throw.points = count;
@@ -143,7 +143,7 @@
                             $(activeplayer).find('.points').text(data.points)
                             console.log(data.throwed)
                             $(".thrown").removeClass("thrown");
-                            let darts = $(activeplayer).find('.dart')
+                            var darts = $(activeplayer).find('.dart')
                             if (data.throwed.first) {
                                 $(darts[0]).addClass("thrown");
                             }
