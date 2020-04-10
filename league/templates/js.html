@@ -136,6 +136,7 @@
                         dataType : 'json',
                         method: "POST",
                         data: JSON.stringify(this_throw),
+                        async: false,
                         cache: false,
                         success: function(data) {
                             console.log(data.points)
