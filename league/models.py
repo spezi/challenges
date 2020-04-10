@@ -59,6 +59,11 @@ class Leg(models.Model):
     number = models.IntegerField(null=True)
     game = models.ForeignKey(Game, on_delete=models.CASCADE)
 
+class Points(models.Model): #fliegt evtl raus
+    points = models.IntegerField(null=True, default=501)
+    leg = models.ForeignKey(Leg, on_delete=models.CASCADE)
+    player = models.ForeignKey(Player, blank=True, null=True, on_delete=models.CASCADE)
+
 class Dart(models.Model):
     player = models.ForeignKey(Player, on_delete=models.CASCADE)
     leg = models.ForeignKey(Leg, on_delete=models.CASCADE)

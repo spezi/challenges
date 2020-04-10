@@ -63,5 +63,111 @@
                     //addplayerselect();
                     //activate_submit();
                 });
+
+            // legview functions
+
+            var players = $('.player')  
+            var activeplayer = null
+            
+            activeplayer = $('.activeplayer')
+            active_player_index = $(activeplayer).index();
+
+            // first select
+            if(activeplayer.length) {
+                console.log(activeplayer.length)
+            } else {
+
+                players.on('click', function(){
+                    active_player_index = $(this).index();
+                    console.log(active_player_index)
+                    activeplayer = $(this)
+                    activeplayer.addClass("activeplayer");
+                    $('.player').unbind();
+                });
+            }
+            
+
+            var set_double = false
+            var set_tripple = false
+
+            var init_throw = {
+                player: 'none',
+                leg: $('#leg_id').val(),
+                points: 'none',
+                double: false,
+                tripple: false,
+            }
+
+            $('.btn_double').on('click', function(){
+                    set_double = true
+                });
+            
+            $('.btn_tripple').on('click', function(){
+                    set_tripple = true
+                });
+            
+            
+
+            $('.numberbtn').on('click', function(){
+                this_throw = init_throw;
+                
+                let count = $(this).data("value");
+                this_throw.player = $(".activeplayer").find('.player_id').val();
+                this_throw.player_index = 
+                this_throw.points = count;
+                this_throw.double = set_double;
+                this_throw.tripple = set_tripple;
+                set_double = false;
+                set_tripple = false;
+                
+                throw_dart(this_throw)
+            });
+
+
+            function throw_dart(this_throw) {
+                console.log(this_throw);
+                
+                var last_player = activeplayer
+                
+                
+
+                $.ajax({
+                        url: "",
+                        dataType : 'json',
+                        method: "POST",
+                        data: JSON.stringify(this_throw),
+                        cache: false,
+                        success: function(data) {
+                            console.log(data.points)
+                            $(activeplayer).find('.points').text(data.points)
+                            console.log(data.throwed)
+                            $(".thrown").removeClass("thrown");
+                            let darts = $(activeplayer).find('.dart')
+                            if (data.throwed.first) {
+                                $(darts[0]).addClass("thrown");
+                            }
+                            if (data.throwed.second) {
+                                $(darts[0]).addClass("thrown");
+                                $(darts[1]).addClass("thrown");
+                            }
+                            // change active player
+                            if(data.throwed.third) {
+                                $(darts[0]).addClass("thrown");
+                                $(darts[1]).addClass("thrown");
+                                $(darts[2]).addClass("thrown");
+
+                                if(active_player_index < players.length-1 ) {
+                                    active_player_index++;
+                                } else {
+                                    active_player_index = 0;
+                                }
+                                activeplayer = $(players[active_player_index]);
+                                $(".activeplayer").removeClass("activeplayer");
+                                activeplayer.addClass("activeplayer");
+                            }
+                            ajax_success = true
+                        }
+                    }); 
+            }
     });
 </script> 

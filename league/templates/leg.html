@@ -2,46 +2,41 @@
 
 {% block content %}
 
-    <input type="hidden" id="gamesid" name="gamesid" value="{{games.id}}">
+    <input type="hidden" id="gameid" name="gameid" value="{{game.id}}">
     <input type="hidden" id="leg_id" name="leg_id" value="{{leg.id}}">
 
     <div class="leg_header">
-        <h1 class="fancyheader">{{games.name}} -> {{leg.number}}</h1>
-        <small><a href="/league/{{ games.league.id }}/game/{{games.id}}">{{games.name}}</a></small>
+        <h1 class="fancyheader">{{game.name}} -> {{leg.number}}</h1>
+        <small><a href="/league/{{ root }}/game/{{game.id}}">{{game.name}}</a></small>
         <hr>
     </div>
     
     <div class="flexiflex"> 
-    {% for player in games.players %}
+    {% for player in players %}
         <!--<div class="card">-->
         
         
-        <div class="flexitem player {% if leg.last_thrown != player.player.id %}activeplayer{% endif %}" data-userid="{{player.player.id}}" >
+        <div class="flexitem player {% if activeplayer == player.id %}activeplayer{% endif %}" data-userid="{{player.id}}" >
             <div>
             <!--<p class="points_bak">{% if debug %}20{% else %}501{% endif %}</p>-->
-            {% for legpoints in playerdata %}
-                
-                    {% if legpoints.player ==  player.player%}
+           
                         <div class="player_item">
-                            {% if legpoints.points == 0 %}<i class="material-icons">emoji_events</i>{% endif %} 
+                            <input type="hidden" class="player_id" name="player_id" value="{{ player.id }}">
                         </div>
                         <div class="player_item">
-                        <h2>{{ player.player.name }}</h2>
+                            <h2>{{ player.name }}</h2>
                         </div>
                         <div class="player_item"> 
-                        <p class="points">
-                        {{legpoints.points}}
-                        </p>
+                            <p class="points">
+                                {{player.points}}
+                            </p>
                         </div>
-                    {% endif %}
-                
-                
-            {% endfor%}
+                   
                 <div class="player_item">
                     <ul class="darts">
-                        <li class="dart"><i data-user="{{player.player.id}}" class="material-icons">send</i></li>
-                        <li class="dart"><i data-user="{{player.player.id}}" class="material-icons">send</i></li>
-                        <li class="dart"><i data-user="{{player.player.id}}" class="material-icons">send</i></li>
+                        <li class="dart {{player.throwed.first}}"><i data-user="{{player.id}}" class="material-icons">send</i></li>
+                        <li class="dart {{player.throwed.second}}"><i data-user="{{player.id}}" class="material-icons">send</i></li>
+                        <li class="dart {{player.throwed.third}}"><i data-user="{{player.id}}" class="material-icons">send</i></li>
                     </ul>
                 </div>
             </div>

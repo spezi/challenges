@@ -93,3 +93,8 @@ class Statistic():
         #player_data_rows = self.calc_rows_player_data(league_players, games)
         
         return player_data_rows
+
+class CheckState():
+
+    def check_throw(self, dart):
+        print(dart)
