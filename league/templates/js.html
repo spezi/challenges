@@ -172,6 +172,7 @@
                                 activeplayer = $(players[active_player_index]);
                                 $(".activeplayer").removeClass("activeplayer");
                                 activeplayer.addClass("activeplayer");
+
                             }
                             ajax_success = true
                         }
@@ -195,5 +196,25 @@
                         }
                     }); 
                 });
+            
+            $('#gamefilter').val('');
+            $('#gamefilter').on('keyup', function(){
+                console.log($(this).val())
+                let searchpattern = $(this).val();
+                console.log(searchpattern)
+                let games = $('#gameslist').find('p');
+                $.each(games, function( index, value ) {
+                    //let search = games[index].innerText.search(searchstring);
+                    let match = games[index].innerText.search(new RegExp(searchpattern, 'gi'))
+                    
+                    if(match == -1) {
+                        console.log(this)
+                        $(this).hide();
+                    } else {
+                        $(this).show();
+                    }
+                });
+                
+            });
     });
 </script> 

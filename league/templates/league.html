@@ -13,11 +13,12 @@
 <h2>
     Games
 </h2>
-
+<input id="gamefilter" type="text" class="form-control" placeholder="Game Filter">
+<div id="gameslist">
 {% for game in games%}
 <p><a href="/league/{{ league.id }}/game/{{game.id}}"><button class="btn btn-primary btn-round">{{game.name}}</button></a></p>
 {% endfor %}
-
+</div>
 
 {% render_table table %}
 <div id="adduserform">
