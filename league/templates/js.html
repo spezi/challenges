@@ -133,10 +133,17 @@
                 this_throw.points = count;
                 this_throw.double = set_double;
                 this_throw.tripple = set_tripple;
-                set_double = false;
-                set_tripple = false;
+                //set_double = false;
+                //set_tripple = false;
                 
                 throw_dart(this_throw)
+                if(set_double) {
+                    $('.btn_double').trigger('click')
+                }
+
+                if(set_tripple) {
+                    $('.btn_tripple').trigger('click')
+                }
             });
             
             // deaktivieren wenn es einen gewinner gibt
@@ -191,6 +198,7 @@
 
                             }
                             ajax_success = true
+                            
                         }
                     }); 
             }
