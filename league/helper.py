@@ -13,6 +13,64 @@ class LeaguePlayer(object):
     diff = 0 
     points = 0
 
+class LegFake(object):
+    id = int()
+    number = int()
+    game = object()
+    winner = int()
+    blocked = bool()
+
+class LegFactory():
+
+    def get_or_build_legs(self, prepare_legs):
+        out_legs = []
+        last_leg = {}
+        print("prepare_legs:" + str(len(prepare_legs)))
+        for idx, this_lag in enumerate(prepare_legs, start=1):
+            if idx == 1 and this_lag.blocked:
+                leg, created = Leg.objects.get_or_create(
+						number=idx,
+						game=self.game,
+					)
+                this_lag = leg
+                this_lag.blocked = False
+                last_leg = this_lag
+            
+            print("last leg winner")
+            if this_lag.blocked and last_leg.winner and not self.game.winner:
+                leg, created = Leg.objects.get_or_create(
+                    number=idx,
+                    game=self.game,
+                    )
+                this_lag = leg
+                this_lag.blocked = False
+                last_leg = this_lag
+            else:
+                try:
+                    leg = Leg.objects.get(
+                        number=idx,
+                        game=self.game,
+                    )
+                    this_lag = leg
+                    this_lag.blocked = False
+                except:
+                    pass
+            if not this_lag.blocked:
+                this_lag.playerdata = []
+                for this_player in self.players:
+                    out_player = {}
+                    this_player.darts = Dart.objects.filter(player=this_player, leg=this_lag, count=True)
+                    out_player["id"] = this_player.id
+                    out_player["name"] = this_player.name
+                    out_player["darts"] = this_player.darts
+                    this_lag.playerdata.append(out_player)
+            else:
+                print(idx)
+			#print(this_lag.playerdata)
+            out_legs.append(this_lag)
+            
+        return out_legs
+
 class Statistic():
        
     def calc_league_player_tabledata(self, league):

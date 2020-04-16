@@ -48,6 +48,7 @@ class Game(models.Model):
         through='GameMembership',
         through_fields=('game', 'player'),
     )
+    winner = models.IntegerField(blank=True, null=True)
     def __str__(self):
         return self.name
 
@@ -72,7 +73,8 @@ class Dart(models.Model):
     tripple = models.BooleanField(default=False)
     points = models.IntegerField(null=True)
     points_calc = models.IntegerField(null=True)
-    overthrowed = models.BooleanField(default=False) 
+    overthrowed = models.BooleanField(default=False)
+    count = models.BooleanField(default=False) 
 
 class League(models.Model):
     name = models.CharField(max_length=128)

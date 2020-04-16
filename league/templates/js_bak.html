@@ -4,8 +4,8 @@
 <!--   Core JS Files   -->
 <script src="{% static 'league/material-kit/assets/js/core/jquery.min.js' %}" type="text/javascript"></script>
 <script src="{% static 'league/material-kit/assets/js/core/popper.min.js' %}" type="text/javascript"></script>
-<script src="{% static 'league/material-kit/assets/js/core/bootstrap-material-design.min.js' %}" type="text/javascript"></script>
-<script src="{% static 'league/material-kit/assets/js/plugins/moment.min.js' %}"></script>
+<!--<script src="{% static 'league/material-kit/assets/js/core/bootstrap-material-design.min.js' %}" type="text/javascript"></script>-->
+<!--<script src="{% static 'league/material-kit/assets/js/plugins/moment.min.js' %}"></script>-->
 <!--	Plugin for the Datepicker, full documentation here: https://github.com/Eonasdan/bootstrap-datetimepicker -->
 <script src="{% static 'league/material-kit/assets/js/plugins/bootstrap-datetimepicker.js' %}" type="text/javascript"></script>
 <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
@@ -13,9 +13,9 @@
 <!--  Google Maps Plugin  -->
 <!--<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script>-->
 <!-- Place this tag in your head or just before your close body tag. -->
-<script async defer src="https://buttons.github.io/buttons.js"></script>
+<!--<script async defer src="https://buttons.github.io/buttons.js"></script>-->
 <!-- Control Center for Material Kit: parallax effects, scripts for the example pages etc -->
-<script src="{% static 'league/material-kit/assets/js/material-kit.js' %}" type="text/javascript"></script>
+<!--<script src="{% static 'league/material-kit/assets/js/material-kit.js' %}" type="text/javascript"></script> -->
 
 <script>
     $( document ).ready(function() {
@@ -63,28 +63,6 @@
                     //addplayerselect();
                     //activate_submit();
                 });
-            
-            // gameview functions
-
-            $('#gamefilter').val('');
-            $('#gamefilter').on('keyup', function(){
-                console.log($(this).val())
-                let searchpattern = $(this).val();
-                console.log(searchpattern)
-                let games = $('#gameslist').find('p');
-                $.each(games, function( index, value ) {
-                    //let search = games[index].innerText.search(searchstring);
-                    let match = games[index].innerText.search(new RegExp(searchpattern, 'gi'))
-                    
-                    if(match == -1) {
-                        console.log(this)
-                        $(this).hide();
-                    } else {
-                        $(this).show();
-                    }
-                });
-                
-            });
 
             // legview functions
 
@@ -148,8 +126,6 @@
 
             $('.numberbtn').on('click', function(){
                 build_throw($(this).data('value'));
-                $('.pushed').removeClass('pushed')
-                $(this).addClass('pushed')
             });
 
             function build_throw(count) {
@@ -163,10 +139,7 @@
                 //set_double = false;
                 //set_tripple = false;
                 
-                // zum Server werfen
                 throw_dart(this_throw)
-
-                //zurücksetzen von double und tripple nach wurf
                 if(set_double) {
                     $('.btn_double').trigger('click')
                 }
@@ -216,7 +189,9 @@
                             if(data.throwed.third) {
                                 $(darts[0]).addClass("thrown");
                                 $(darts[1]).addClass("thrown");
-                                $(darts[2]).addClass("thrown");       
+                                $(darts[2]).addClass("thrown");
+
+                                
 
                                 if(active_player_index < players.length-1 ) {
                                     active_player_index++;
@@ -226,7 +201,12 @@
                                 activeplayer = $(players[active_player_index]);
                                 $(".activeplayer").removeClass("activeplayer");
                                 activeplayer.addClass("activeplayer");
-                            }                            
+                            }
+
+                            if(data.overthrowed) {
+                                window.location.reload()
+                            }
+                            
 
                             ajax_success = true
                             
@@ -237,7 +217,6 @@
                     }); 
             }
 
-            // letzten wurf Rückgangig machen 
             $('.btn_undo').on('click', function(){
                     console.log("undo .. ")
                     undo = init_throw
@@ -255,5 +234,25 @@
                         }
                     }); 
                 });
+            
+            $('#gamefilter').val('');
+            $('#gamefilter').on('keyup', function(){
+                console.log($(this).val())
+                let searchpattern = $(this).val();
+                console.log(searchpattern)
+                let games = $('#gameslist').find('p');
+                $.each(games, function( index, value ) {
+                    //let search = games[index].innerText.search(searchstring);
+                    let match = games[index].innerText.search(new RegExp(searchpattern, 'gi'))
+                    
+                    if(match == -1) {
+                        console.log(this)
+                        $(this).hide();
+                    } else {
+                        $(this).show();
+                    }
+                });
+                
+            });
     });
 </script> 

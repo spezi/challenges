@@ -4,6 +4,10 @@
   margin: 3px;
 }
 
+.pushed {
+  background-color: #999;
+}
+
 table {
   margin-left: auto;
   margin-right: auto;

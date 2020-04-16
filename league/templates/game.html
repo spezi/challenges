@@ -10,7 +10,8 @@
     </br>
 
     {% for leg in legs %}
-        <p><a href="/league/{{ league.id }}/game/{{game.id}}/leg/{{ leg.id }}">
+        <p> {% if not leg.blocked %}
+            <a href="/league/{{ league.id }}/game/{{game.id}}/leg/{{ leg.id }}">
             {% if leg.winner %}
                 <button class="btn btn-success btn-fab btn-fab-mini btn-round">
             {% else %}
@@ -19,6 +20,11 @@
                 {{leg.number}}
             </button>
             </a>
+            {% else %}
+                <button class="btn btn-default btn-fab btn-fab-mini btn-round">
+                    {{leg.number}}
+                </button> 
+            {% endif %}
             <!--{% for pl in players %}
                 {{pl.player.name}}
             {% endfor %}

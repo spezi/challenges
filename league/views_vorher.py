@@ -5,7 +5,7 @@ from .models import *
 from .forms import *
 from django.http import JsonResponse
 from .tables import LeagueTable
-from .helper import Statistic, LegFake, LegFactory
+from .helper import Statistic
 
 
 import json
@@ -69,7 +69,9 @@ class LeagueView(TemplateView):
 			if sorted(comparelist) in jeder_gegen_jeden_list:
 				#print("gibts schon")
 				jeder_gegen_jeden_list.remove(sorted(comparelist))
-
+       if(data.overthrowed) {
+                                window.location.reload()
+                            }
 		#create rest if necessary
 		for players in jeder_gegen_jeden_list:
 			player_one = Player.objects.get(pk=players[0])
@@ -160,38 +162,46 @@ class GameView(TemplateView):
 		self.league = league.league
 		
 		print(self.league.mode.legs)
-
 		players = GameMembership.objects.filter(game=self.game)
 		print(len(players))
 
 		prepare_legs = []
 		for i in range(1,self.league.mode.legs + 1):
-			
+			#clear players
 			self.players = set()
-		
-			leg = LegFake()
-			leg.id = int(i)
-			leg.number = int(i) 
-			leg.game = self.game
-			leg.players = self.players
-			leg.winner = None 
-			leg.blocked = True
+			leg, created = Leg.objects.get_or_create(
+						number=i,
+						game=self.game,
+					)
 			prepare_legs.append(leg)
-			
-		
+			# get players leg state
+			#print(players)
 			for player in players:
 				that_player = player.player
+				#that_player.legdarts = Dart.objects.filter(player=that_player, leg=leg)
+				#print(that_player.legdarts)
+				#if that_player not in self.players: self.players.append(that_player)
 				self.players.add(that_player)
 				print(self.players)
 
 		print(prepare_legs)
 		
-		legfactory = LegFactory()
-		legfactory.players = self.players
-		legfactory.game = self.game
-		out_legs = legfactory.get_or_build_legs(prepare_legs)
+		out_legs = []
+		
+		for this_lag in prepare_legs:
+			this_lag.playerdata = []
+			for this_player in self.players:
+				out_player = {}
+				this_player.darts = Dart.objects.filter(player=this_player, leg=this_lag, count=True)
+				out_player["id"] = this_player.id
+				out_player["name"] = this_player.name
+				out_player["darts"] = this_player.darts
+				this_lag.playerdata.append(out_player)
 
-
+			#print(this_lag.playerdata)
+			out_legs.append(this_lag)
+				
+		
 		context['game'] = self.game
 		context['players'] = self.players
 		context['league'] = self.league
@@ -205,72 +215,9 @@ class LegView(TemplateView):
 	win = False
 	throw = {}
 	current_dart_of_set = 0
-	game = {}
 
-	def check_game_win(self, game_id):
-		self.game = Game.objects.get(pk=game_id)
-		neededwinns = self.current_league.mode.legs / 2 + 1
-		game_legs = Leg.objects.filter(game=self.game)
-		winnerset = set()
-		winnerlist = []
-		for leg in game_legs:
-			print('get winners:')
-			winnerlist.append(leg.winner)
-			if leg.winner: winnerset.add(leg.winner)
-		print(winnerset)
-		for winner in winnerset:
-			count = winnerlist.count(winner)
-			print('count winns: ' + str(count))
-			if count >= neededwinns:
-				self.game.winner = winner
-				self.game.save()
-				return True
-		return False # wenn nicht dann könnte link fürs nächste Leg angezeigt werden
-
-	def scoring(self):
-		init_points = self.current_league.mode.points
-		points = init_points
-		out_points = points
-
-		for index, dart in enumerate(self.current_player_darts):
-			if dart.count and not dart.overthrowed:
-				points = points - dart.points_calc
-		
-		out_points = points
-		return out_points
-		
-	def get_player_throwed(self):
-		#print(len(self.current_player_darts))
-		first = ''
-		second = ''
-		third = ''
-
-		self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
-
-		throwed = len(self.current_player_darts) % 3 # 0 1 2 
-		print("throwed darts: " + str(len(self.current_player_darts)))
-		print("throwed module: " + str(throwed))
-		if self.current_player_points != self.current_league.mode.points: # damit am start nicht alle schon geworfen sind
-			if throwed == 1:
-				first = 'thrown'
-				self.current_dart_of_set = 1
-			if throwed == 2:
-				first = 'thrown'
-				second = 'thrown'
-				self.current_dart_of_set = 2
-			if throwed == 0:
-				first = 'thrown'
-				second = 'thrown'
-				third = 'thrown'
-				self.current_dart_of_set = 3
-		throwed_darts = {'first': first,'second': second, 'third':third}
-		return throwed_darts
-
-	def checkin_dart(self, points_calc):
-		print('###')
-		print(self.throw)
-		print(self.overthrowed)
-		print('###')
+	def checkin_dart(self, count, points_calc):
+		#count nur zum auffüllen des aktuellen sets aber sollen nicht zählen
 		try:
 			save_dart = Dart(
 				player= self.current_player, 
@@ -280,128 +227,118 @@ class LegView(TemplateView):
 				points= self.throw['points'],
 				points_calc= points_calc,
 				overthrowed= self.overthrowed,
-				count= True,
+				count= count,
 				)
 			save_dart.save()
-			ret = True
+			#print('überworfen dart:')
+			#print(save_dart)
+			return True
 		except Exception as e:
 			print(str(e))
-			ret = False
-
-		# noch mal danach abfragen
-		self.throwed = self.get_player_throwed()
-		print('self.throwed nach dart speichern')
-		print(self.throwed)
-		return ret
-
-	def fill_dart_set(self):
-		ret = False
-		print("fill dart set")
-		print(self.current_player)
-		print(self.throwed)
-		fillcount = 0
-		if not self.throwed['second']:
-			fillcount += 1
-		if not self.throwed['third']:
-			fillcount += 1
-		#print(fillcount)
-		for i in range(fillcount):
-			try:
-				save_dart = Dart(
-					player= self.current_player, 
-					leg= self.current_leg, 
-					double= False,
-					tripple= False,
-					points= 0,
-					points_calc= 0,
-					overthrowed= self.overthrowed,
-					count= False,
-					)
-				save_dart.save()
-				ret = True
-			except Exception as e:
-				print(str(e))
-				ret = False
+			return False
 		
-		# noch mal danach abfragen
-		self.throwed = self.get_player_throwed()
-		print('self.throwed nach dart speichern')
-		print(self.throwed)
 
-		return ret
-	def set_overthrowed_for_all_in_set(self):
-		print("overthrowed for whole set")
-		print(self.throwed)
-		last_darts = []
-		if self.throwed['second']:
-			last_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg).order_by('-id')[:2]
-		if self.throwed['third']:
-			last_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg).order_by('-id')[:3]
-		print(last_darts)
-		for dart in last_darts:
-			dart.overthrowed = True
-			dart.save()
-		return True
-
-	def score_dart(self):
-		point_before = self.current_player_points
-		points = point_before
+	def scoring(self, isthrow):
+		init_points = self.current_league.mode.points
+		points = init_points
+		out_points = points
 		self.overthrowed = False
+		dart_checkin = False
 
-		#calc throw points
-		throw_points = self.throw['points']
-		if self.throw['double']:
+		#print(self.throwed)
+		print(self.throw)
+
+		for index, dart in enumerate(self.current_player_darts):
+			if dart.count and not dart.overthrowed:
+				points = points - dart.points_calc
+
+		# points = vor dem aktuellen wurf 
+		print(points)
+		
+		if isthrow:
+			#aktuellen dart abziehen und prüfen
+			throw_points = self.throw['points']
+
+			if self.throw['double']:
 				throw_points = self.throw['points'] * 2
 			
-		if self.throw['tripple']:
-			throw_points = self.throw['points'] * 3
-		
-		#spiellogic
-		points = point_before - throw_points
-		
-		if points == 0:
-			if self.throw['double']:
-				print("wir haben einen Sieger!!")
-				self.win = True
-				self.current_leg.winner = self.current_player.id
-				self.current_leg.save()
-			else:
-				print("kein double out !!")
+			if self.throw['tripple']:
+				throw_points = self.throw['points'] * 3
+
+			check_points = points - throw_points
+
+			if check_points == 0:
+				if self.throw['double']:
+					print("wir haben einen Sieger!!")
+					dart_checkin = self.checkin_dart(True, throw_points)
+					out_points = check_points
+					self.win = True
+					self.current_leg.winner = self.current_player.id
+					self.current_leg.save()
+				else:
+					print("kein double out !!")
+					self.overthrowed = True
+					dart_checkin = self.checkin_dart(True, throw_points)
+					#TODO
+			elif check_points < 2:
+				print('überworfen')
 				self.overthrowed = True
-		elif points < 2:
-			self.overthrowed = True
-		else:
-			self.current_player_points = points
+				dart_checkin =  self.checkin_dart(True, throw_points)
+			else:
+				print('zählt')
+				dart_checkin =  self.checkin_dart(True, throw_points)
+			
+			# auffüllen bei überworfen
+			if self.overthrowed:
+				print("auffüllen bei überworfen")
+				self.get_player_throwed()
+				if self.current_dart_of_set == 1:
+					self.checkin_dart(False, throw_points)
+					self.checkin_dart(False, throw_points)
+					
+				if self.current_dart_of_set == 2:
+					self.checkin_dart(False, throw_points)
+					self.get_player_throwed()
 
-		dart_checkin =  self.checkin_dart(throw_points)
+			if dart_checkin:
+				out_points = check_points
 
-		if self.overthrowed:
-			setforall = self.set_overthrowed_for_all_in_set()
-			if setforall: 
-				self.fill_dart_set()
-				points = self.scoring() #auf punkte for dem set berechnen
-				
+		else: #isthrow
+			out_points = points
 
-		if dart_checkin:
-			response = {
-					'player': self.throw["player"], 
-					'points': points, 
-					'throwed': self.throwed, 
-					'success': True, 
-					'overthrowed': self.overthrowed,
-					'win': self.win,
-					}
-		else:
-			response = {'success': False, 'score_dart': False}
+		return out_points
 
+	def get_player_throwed(self):
+		#print(len(self.current_player_darts))
 		
-		return response
+		first = ''
+		second = ''
+		third = ''
+
+		self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
+
+		throwed = len(self.current_player_darts) % 3 # 0 1 2 
+		print("throwed darts: " + str(len(self.current_player_darts)))
+		print("throwed module: " + str(throwed))
+		if throwed == 1:
+			first = 'thrown'
+			self.current_dart_of_set = 1
+		if throwed == 2:
+			first = 'thrown'
+			second = 'thrown'
+			self.current_dart_of_set = 2
+		if throwed == 0:
+			first = 'thrown'
+			second = 'thrown'
+			third = 'thrown'
+			self.current_dart_of_set = 3
+		throwed_darts = {'first': first,'second': second, 'third':third}
+		return throwed_darts
 
 	def post(self, request, *args, **kwargs):
 		
 		print("da kam was geflogen")
 		self.throw = json.loads(request.body)
-		print(self.throw)
 
 		self.current_league = League.objects.get(pk=kwargs['league_id']) # um den modus zu bekommen
 		self.current_leg = Leg.objects.get(pk=kwargs['leg_id'])
@@ -409,29 +346,31 @@ class LegView(TemplateView):
 		if self.throw['what'] == 'throw':
 			self.current_player = Player.objects.get(pk=self.throw['player'])
 			self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
-			self.current_player_points = self.scoring()
 			self.throwed = self.get_player_throwed()
-			response= {'success': False }
-
 			try:
-				response = self.score_dart()
+
+				points = self.scoring(True) # True weil throw
+
+				self.throwed = self.get_player_throwed()
+
+				response = {
+					'player': self.throw["player"], 
+					'points': points, 
+					'throwed': self.throwed, 
+					'success': True, 
+					'overthrowed': self.overthrowed,
+					'win': self.win,
+					}
+				return JsonResponse(response)
 			except Exception as e:
 				print(str(e))
-				response = {'success': False }
-
-			self.check_game_win(kwargs['game_id'])
-			return JsonResponse(response)
+				return JsonResponse({'success': False })
 
 		elif self.throw['what'] == 'undo':
 			print(self.current_leg.id)
 			try:
 				lastdart = Dart.objects.filter(leg=self.current_leg).last()
 				lastdart.delete()
-				print('gibts schon nen winner??')
-				print(self.current_leg.winner)
-				if self.current_leg.winner: 
-					self.current_leg.winner = None
-					self.current_leg.save()
 				return JsonResponse({'success': True })
 			except:
 				return JsonResponse({'success': False })
@@ -456,7 +395,7 @@ class LegView(TemplateView):
 			self.current_player = player
 			self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
 			
-			self.current_player_points = self.scoring()
+			player_points = self.scoring(False) # False da kein throw
 			
 			self.throwed = self.get_player_throwed()
 
@@ -470,7 +409,7 @@ class LegView(TemplateView):
 			playerdata = {
 				'id': player.id,
 				'name': player.name,
-				'points': self.current_player_points,
+				'points': player_points,
 				'darts': len(self.current_player_darts),
 				'throwed': self.throwed
 				}
@@ -489,13 +428,6 @@ class LegView(TemplateView):
 
 					activeplayer = self.players[j]['id']
 
-		#anfänger auswählbar machen
-		current_leg_darts = Dart.objects.filter(leg=self.current_leg)
-		print('current leg darts' + str(len(current_leg_darts)))
-		if len(current_leg_darts) == 0:
-			activeplayer = 'none'
-		
-		self.check_game_win(game_id)
 
 		context = super(LegView, self).get_context_data(*args, **kwargs)
 		context['root'] = league_id

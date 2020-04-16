@@ -16,7 +16,11 @@
 <input id="gamefilter" type="text" class="form-control" placeholder="Game Filter">
 <div id="gameslist">
 {% for game in games%}
-<p><a href="/league/{{ league.id }}/game/{{game.id}}"><button class="btn btn-primary btn-round">{{game.name}}</button></a></p>
+    {% if game.winner %}
+    <p><a href="/league/{{ league.id }}/game/{{game.id}}"><button class="btn btn-success btn-round">{{game.name}}</button></a></p>
+    {% else %}
+    <p><a href="/league/{{ league.id }}/game/{{game.id}}"><button class="btn btn-primary btn-round">{{game.name}}</button></a></p>
+    {% endif %}
 {% endfor %}
 </div>
 
