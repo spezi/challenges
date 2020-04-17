@@ -5,11 +5,23 @@ class AddLeagueForm(forms.ModelForm):
     class Meta:
         model = League
         fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'})
+        }
 
 class LeagueModesForm(forms.ModelForm):
     class Meta:
         model = Modes
         fields = ['points', 'checkin', 'checkout', 'winmod', 'legs']
+        widgets = {
+            'points': forms.Select(attrs={'class': 'form-control'}),
+            'checkin': forms.Select(attrs={'class': 'form-control'}),
+            'checkout': forms.Select(attrs={'class': 'form-control'}),
+            'winmod': forms.Select(attrs={'class': 'form-control'}),
+            'legs': forms.NumberInput(
+                attrs={'class': 'form-control'}
+                ),
+        }
 
 class AddPlayerForm(forms.Form):
     name = forms.CharField(label='Add Player', max_length=100)

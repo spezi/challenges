@@ -22,6 +22,30 @@ class IndexView(TemplateView):
 	template_name = 'index.html'
 	add_league_form = AddLeagueForm()
 	add_league_mod_form = LeagueModesForm()
+	
+	def post(self, request, *args, **kwargs):
+		add_league_form = AddLeagueForm(request.POST)
+		add_league_mod_form = LeagueModesForm(request.POST)
+
+		add_league_form_valid = add_league_form.is_valid()
+		add_league_mod_form_valid = add_league_mod_form.is_valid()
+
+		if add_league_form_valid and add_league_mod_form_valid:
+			print(request.POST)
+			name = str(request.POST['points']) + ' ' + request.POST['checkin'] + ' ' + request.POST['checkout'] + ' ' + request.POST['winmod'] + ' ' + str(request.POST['legs'])
+			mode = Modes.objects.get_or_create(
+				name = name,
+				points = request.POST['points'],
+				checkin = request.POST['checkin'],
+				checkout = request.POST['checkout'],
+				winmod = request.POST['winmod'],
+				legs = request.POST['legs'],
+			)
+			league = League(name=request.POST['name'])
+			league.save() 
+			return self.get(request, *args, **kwargs)
+		else:
+			return self.get(request, *args, **kwargs)
 
 	def get_context_data(self, *args, **kwargs):
 		context = super(IndexView, self).get_context_data(*args, **kwargs)

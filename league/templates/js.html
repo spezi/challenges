@@ -155,9 +155,14 @@
             
 
             $('.numberbtn').on('click', function(){
+                if($(this).data('value') == 25 && set_tripple) {
+                    set_tripple = false
+                    set_double = true
+                }
                 build_throw($(this).data('value'));
                 $('.pushed').removeClass('pushed')
                 $(this).addClass('pushed')
+                
             });
 
             function build_throw(count) {
