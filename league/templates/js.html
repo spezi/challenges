@@ -53,9 +53,17 @@
             
             console.log( "ready!" );
 
+            // indexview functions
+            $('#addleague').on('click', function addleague(what) {
+                    console.log("add league");
+                    //$(document).find('.modal-form-body').html('')
+                    //addplayerselect();
+                    //activate_submit();
+                });
+
             // leagueview functions
 
-            $('#addplayers').on('click', function initmodal(what) {
+            $('#addplayers').on('click', function adduser(what) {
                     console.log("add player");
                     $(this).hide();
                     $("#adduserform").show();

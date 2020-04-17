@@ -20,10 +20,15 @@ import json
 
 class IndexView(TemplateView):
 	template_name = 'index.html'
+	add_league_form = AddLeagueForm()
+	add_league_mod_form = LeagueModesForm()
 
 	def get_context_data(self, *args, **kwargs):
 		context = super(IndexView, self).get_context_data(*args, **kwargs)
+		print(self.add_league_form)
 		context['leagues'] = League.objects.all()
+		context['addleagueform'] = self.add_league_form 
+		context['addleaguemodform'] = self.add_league_mod_form 
 		context['title'] = 'welcome'
 		return context
 
@@ -135,14 +140,32 @@ class LeagueView(TemplateView):
 		self.league_members = LeagueMembership.objects.filter(league=league_id)
 		#print(self.league_members)
 		
+		league_games = self.get_or_create_games()
+
+		tabledata =''
 		statistic = Statistic()
-		tabledata = statistic.calc_league_player_tabledata(self.league)
+		statistic.league=self.league 
+		statistic.league_members=self.league_members
+		statistic.league_games = league_games 
+		tabledata = statistic.gen_league_table()
 		#print("tabledata")
 		#print(tabledata)
 
+		league_table = LeagueTable(tabledata)
+		league_table.order_by = "-points"
+
+		# auch remis grün darstellen
+		for game in league_games:
+			legwinns = 0 
+			game_legs = Leg.objects.filter(game=game)
+			for leg in game_legs:
+				if leg.winner: legwinns += 1
+			if legwinns == self.league.mode.legs:
+				game.winner = True
+
 		context['league'] = self.league 
-		context['games'] = self.get_or_create_games()
-		context['table'] = LeagueTable(tabledata)
+		context['games'] = league_games
+		context['table'] = league_table
 		context['add_user_form'] = AddPlayerToLeagueForm()
 		return context
 

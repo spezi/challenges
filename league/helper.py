@@ -71,49 +71,73 @@ class LegFactory():
             
         return out_legs
 
-class Statistic():
-       
-    def calc_league_player_tabledata(self, league):
-        
-        player_data_rows = []
-        #print(league)
-        league_player = Player.objects.filter(league=league)
-        league_games = LeagueGames.objects.filter(league=league)
-        league_legs = []
-        for game in league_games:
-            game_legs = Leg.objects.filter(game=game.game)
-            for leg in game_legs:
-                league_legs.append(leg)
-                #league_player.append()
-        
+class Statistic(object):
+    league =  {}
+    league_members = []
+    league_games = []    
+    league_legs = [] # not used iterate by game
+    league_states = {}
 
-        for player in league_player:
+    def collect_league_states(self):
+        
+        # erstmal spieler sammeln
+        for member in self.league_members:
+            self.league_states[member.player.id] = {
+                'name': member.player.name,
+                'games': 0,
+                'winn': 0,
+                'loose': 0,
+                'remis': 0,
+                'winlegs': 0,
+                'looselegs': 0,
+                'diff': 0,
+                'points': 0,
+                }
+        
+        #games daten sammeln und anreichern
+        for game in self.league_games:
             
-            player.legwin = 0
-            player.points = 0
-            player.looselegs = 0
+            game_player = Player.objects.filter(game=game)
+            game_legs = Leg.objects.filter(game=game)
+            
+            legwins = 0
+            for leg in game_legs:
+                for player in game_player:
+                    if leg.winner:
+                    #leg gewinne zählen
+                        if player.id == leg.winner:
+                            self.league_states[player.id]['winlegs'] +=1
+                            legwins += 1
+                        #verlorene legs zählen 
+                        else:
+                            self.league_states[player.id]['looselegs'] +=1
+            
+            for player in game_player:
+                #zu player games addieren wenn game zuende
+                if game.winner:
+                    if player.id == game.winner: 
+                        self.league_states[player.id]['winn'] += 1
+                    else:
+                        self.league_states[player.id]['loose'] += 1
+                else:
+                    if self.league.mode.legs == legwins:
+                        self.league_states[player.id]['remis'] += 1
+        
 
-            for leg in league_legs:
-                #print(leg)
-                if leg.winner == player.id:
-                    player.legwin += 1
-                    player.points += 2
 
-            player_row = {
-                        'player': player.name,
-                        'games': LeaguePlayer.games,
-                        'winn': LeaguePlayer.winn,
-                        'loose': LeaguePlayer.loose,
-                        'remis': LeaguePlayer.remis,
-                        'winlegs': player.legwin,
-                        'looselegs': player.looselegs,
-                        'diff': player.legwin - player.looselegs,
-                        'points': player.points,
-                    }
+    def gen_league_table(self):
+        print("table will be generated")
+        self.collect_league_states()
+        player_data_rows = []
+        
+        for player_id, player_dict in self.league_states.items():
+            
+            #count games points and leg diff
+            player_dict['games'] = player_dict['winn'] + player_dict['loose'] + player_dict['remis']
+            player_dict['points'] = player_dict['winn'] * 2 + player_dict['remis']
+            player_dict['diff'] = player_dict['winlegs'] - player_dict['looselegs']
 
-            player_data_rows.append(player_row)
-
-
-
+            player_data_rows.append(player_dict)
+        
         return player_data_rows
 

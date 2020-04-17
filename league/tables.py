@@ -6,7 +6,7 @@ class ValueColumn(tables.Column):
         return 23
 
 class LeagueTable(tables.Table):
-    player = tables.Column()
+    name = tables.Column(order_by="points")
     games = tables.Column(attrs={"th": {"class": "tgames"}, "td": {"class": "tgames"}})
     winn = tables.Column(attrs={"th": {"class": "twinn"}, "td": {"class": "twinn"}})
     loose = tables.Column(attrs={"th": {"class": "tloose"}, "td": {"class": "tloose"}})

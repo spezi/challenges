@@ -1,5 +1,15 @@
 from django import forms
-from .models import Player
+from .models import *
+
+class AddLeagueForm(forms.ModelForm):
+    class Meta:
+        model = League
+        fields = ['name']
+
+class LeagueModesForm(forms.ModelForm):
+    class Meta:
+        model = Modes
+        fields = ['points', 'checkin', 'checkout', 'winmod', 'legs']
 
 class AddPlayerForm(forms.Form):
     name = forms.CharField(label='Add Player', max_length=100)

@@ -26,7 +26,11 @@
             <div class="section text-center">
                 {% block content %}
                 <h1 class="fancyheader">Challenges App</h1>
-                    <h2>Leagues</h2>
+                    <h2>Leagues
+                    <button id="addleague" class="btn btn-primary btn-fab btn-fab-mini btn-round" data-toggle="modal" data-target="#exampleModalLong">
+                        <i class="material-icons">add</i>
+                    </button>
+                    </h2>
                     <ul class="no_decoration"> 
                         {% for league in leagues %}
                             <li>
@@ -44,7 +48,32 @@
 
     {% include "js.html" %}
 
-    {% include "add_user_modal.html" %}
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModalLong" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form method="POST" class="post-form">{% csrf_token %}
+            <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">add League</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+            <div class="modal-form-body">
+                {{ addleagueform.as_p }}
+                {{ addleaguemodform.as_p }}
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button id="submit-player" type="submit" class="btn btn-primary">Save changes</button>
+            </form>
+            </div>
+        </div>
+        </div>
+    </div>
+
 
 </body>
 </html>
