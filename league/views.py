@@ -50,7 +50,7 @@ class IndexView(TemplateView):
 
 	def get_context_data(self, *args, **kwargs):
 		context = super(IndexView, self).get_context_data(*args, **kwargs)
-		print(self.add_league_form)
+		#print(self.add_league_form)
 		context['leagues'] = League.objects.all()
 		context['addleagueform'] = self.add_league_form 
 		context['addleaguemodform'] = self.add_league_mod_form 
@@ -160,14 +160,15 @@ class LeagueView(TemplateView):
 
 	def get_context_data(self, *args, league_id, **kwargs):
 		context = super(LeagueView, self).get_context_data(*args, **kwargs)
+		print(league_id)
 		self.league_id = league_id
 		self.league = League.objects.get(pk=league_id)
 		self.league_members = LeagueMembership.objects.filter(league=league_id)
-		#print(self.league_members)
+		print(self.league)
 		
 		league_games = self.get_or_create_games()
 
-		tabledata =''
+		tabledata = ''
 		statistic = Statistic()
 		statistic.league=self.league 
 		statistic.league_members=self.league_members

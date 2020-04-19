@@ -78,6 +78,27 @@ class Statistic(object):
     league_legs = [] # not used iterate by game
     league_states = {}
 
+    def __init__(self, league = None, league_members = None, league_games = None, league_states = None):
+        if league == None:
+            self.league = {}
+        else:
+            self.league = league
+
+        if league_members == None:
+            self.league_members = []
+        else:
+            self.league_members = league_members
+
+        if league_games  == None:
+            self.league_games  = []
+        else:
+            self.league_games = league_games
+
+        if league_states  == None:
+            self.league_states  = {}
+        else:
+            self.league_states = league_states
+
     def collect_league_states(self):
         
         # erstmal spieler sammeln
