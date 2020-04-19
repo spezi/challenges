@@ -36,3 +36,17 @@ class AddPlayerToLeagueForm(forms.Form):
         to_field_name="name",
         widget = StyledSelect,
     )
+
+class RemovePlayerToLeagueForm(forms.Form):
+
+    name = forms.ModelChoiceField(
+            queryset=Player.objects.none(), 
+            empty_label="...", 
+            to_field_name="name",
+            widget = StyledSelect,
+        )
+    
+    def __init__(self, league, *args, **kwargs):
+        super(RemovePlayerToLeagueForm, self).__init__(*args, **kwargs)
+        self.fields['name'].queryset = Player.objects.filter(league=league)
+        

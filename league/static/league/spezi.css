@@ -82,6 +82,10 @@ table {
   display: none;
 }
 
+#removeuserform {
+  display: none;
+}
+
 .btn-fab-mini {
   font-size: 1em !important;
   line-height: 1em !important;

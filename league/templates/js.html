@@ -66,11 +66,22 @@
             $('#addplayers').on('click', function adduser(what) {
                     console.log("add player");
                     $(this).hide();
+                    $("#removeplayers").hide();
                     $("#adduserform").show();
                     //$(document).find('.modal-form-body').html('')
                     //addplayerselect();
                     //activate_submit();
                 });
+            
+            $('#removeplayers').on('click', function adduser(what) {
+                console.log("remove player");
+                $('#addplayers').hide();
+                $(this).hide();
+                $("#removeuserform").show();
+                //$(document).find('.modal-form-body').html('')
+                //addplayerselect();
+                //activate_submit();
+            });
             
             // gameview functions
 

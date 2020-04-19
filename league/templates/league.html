@@ -28,11 +28,21 @@
 <div id="adduserform">
     <form action="" method="post">
         {% csrf_token %}
+        <input type="hidden" id="what" name="what" value="add">
         {{  add_user_form   }}
         <button class="btn btn-primary btn-sm" type="submit" value="Submit"><i class="material-icons">add</i></button>
     </form>
 </div>
+<div id="removeuserform">
+    <form action="" method="post">
+        {% csrf_token %}
+        <input type="hidden" id="what" name="what" value="remove">
+        {{  remove_user_form   }}
+        <button class="btn btn-primary btn-sm" type="submit" value="Submit"><i class="material-icons">remove</i></button>
+    </form>
+</div>
 <button id="addplayers" class="btn btn-primary btn-sm"><i class="material-icons">add</i></button>
+<button id="removeplayers" class="btn btn-primary btn-sm"><i class="material-icons">remove</i></button>
 <!--<a id="addplayers" href="addplayers" data-toggle="modal" data-target="#exampleModalLong" ><i class="material-icons">add</i></a>-->
 {% endblock%}
 

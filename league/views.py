@@ -142,21 +142,46 @@ class LeagueView(TemplateView):
 			return True
 		
 		return False
+	
+	def remove_player(self, name, league_id):
+		pass
 
 	def post(self, request, *args, **kwargs):
 		print("get post")
 		
-		form = AddPlayerForm(request.POST)
+		form_add = AddPlayerForm(request.POST)
 
-		if form.is_valid():
-			name = form.cleaned_data['name']
+		#Frickl Frickl
+		if form_add.is_valid():
+			name = form_add.cleaned_data['name']
+			print(request.POST['what'])
+
 			league_id = kwargs['league_id']
 			self.league = League.objects.get(pk=league_id) 
-			player_added = self.add_player(name, league_id)
-			if player_added:
-				return self.get(request, *args, **kwargs)
-			else:
-				return HttpResponse("Player konnte nicht hinzugefügt werden")
+
+			if request.POST['what'] == 'add':
+				player_added = self.add_player(name, league_id)
+				if player_added:
+					return self.get(request, *args, **kwargs)
+				else:
+					return HttpResponse("Player konnte nicht hinzugefügt werden")
+
+			if request.POST['what'] == 'remove':
+				playerobj = Player.objects.get(name=name)
+				try:
+					league_membership = LeagueMembership.objects.get(league=self.league, player=playerobj)
+					league_membership.delete()
+					league_games = LeagueGames.objects.filter(league=self.league)
+					for league_game in league_games:
+						gameplayer = Player.objects.filter(game=league_game.game)
+						for player in gameplayer:
+							if player.name == name:
+								print('wird jelöscht')
+								league_game.game.delete()
+					return self.get(request, *args, **kwargs)
+				except Exception as e:
+					print(str(e))
+					return HttpResponse("Player konnte nicht gelöscht werden")
 
 	def get_context_data(self, *args, league_id, **kwargs):
 		context = super(LeagueView, self).get_context_data(*args, **kwargs)
@@ -189,10 +214,14 @@ class LeagueView(TemplateView):
 			if legwinns == self.league.mode.legs:
 				game.winner = True
 
+		remove_player = RemovePlayerToLeagueForm(self.league)
+
+		print(dir(remove_player))
 		context['league'] = self.league 
 		context['games'] = league_games
 		context['table'] = league_table
 		context['add_user_form'] = AddPlayerToLeagueForm()
+		context['remove_user_form'] = remove_player
 		return context
 
 class GameView(TemplateView):
