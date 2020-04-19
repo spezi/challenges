@@ -33,7 +33,7 @@ class IndexView(TemplateView):
 		if add_league_form_valid and add_league_mod_form_valid:
 			print(request.POST)
 			name = str(request.POST['points']) + ' ' + request.POST['checkin'] + ' ' + request.POST['checkout'] + ' ' + request.POST['winmod'] + ' ' + str(request.POST['legs'])
-			mode = Modes.objects.get_or_create(
+			mode, create = Modes.objects.get_or_create(
 				name = name,
 				points = request.POST['points'],
 				checkin = request.POST['checkin'],
@@ -42,6 +42,7 @@ class IndexView(TemplateView):
 				legs = request.POST['legs'],
 			)
 			league = League(name=request.POST['name'])
+			league.mode = mode
 			league.save() 
 			return self.get(request, *args, **kwargs)
 		else:
