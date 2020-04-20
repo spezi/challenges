@@ -227,20 +227,46 @@
                             $(activeplayer).find('.points').text(data.points)
                             
                             console.log(data.throwed)
-                            $(".thrown").removeClass("thrown");
                             var darts = $(activeplayer).find('.dart')
                             if (data.throwed.first) {
-                                $(darts[0]).addClass("thrown");
+                                if(!$(darts[0]).hasClass("thrown")) {
+                                    $(darts[0]).html(this_throw.points)
+                                    if (this_throw.double) { 
+                                        $(darts[0]).append('d/')
+                                    } else if (this_throw.tripple) {
+                                        $(darts[0]).append('t/')
+                                    } else {
+                                        $(darts[0]).append('/')
+                                    }
+                                }
+                                $(darts[0]).addClass("thrown");   
                             }
                             if (data.throwed.second) {
-                                $(darts[0]).addClass("thrown");
+                                if(!$(darts[1]).hasClass("thrown")) {
+                                    $(darts[1]).html(this_throw.points)
+                                    if (this_throw.double) { 
+                                        $(darts[1]).append('d/')
+                                    } else if (this_throw.tripple) {
+                                        $(darts[1]).append('t/')
+                                    } else {
+                                        $(darts[1]).append('/')
+                                    }
+                                }
                                 $(darts[1]).addClass("thrown");
                             }
                             // change active player
-                            if(data.throwed.third) {
-                                $(darts[0]).addClass("thrown");
-                                $(darts[1]).addClass("thrown");
-                                $(darts[2]).addClass("thrown");       
+                            if(data.throwed.third) {       
+                                if(!$(darts[2]).hasClass("thrown")) {
+                                    $(darts[2]).html(this_throw.points)
+                                    if (this_throw.double) { 
+                                        $(darts[2]).append('d/')
+                                    } else if (this_throw.tripple) {
+                                        $(darts[2]).append('t/')
+                                    } else {
+                                        $(darts[2]).append('/')
+                                    }
+                                }
+                                $(darts[2]).addClass("thrown");  
 
                                 if(active_player_index < players.length-1 ) {
                                     active_player_index++;
@@ -250,6 +276,12 @@
                                 activeplayer = $(players[active_player_index]);
                                 $(".activeplayer").removeClass("activeplayer");
                                 activeplayer.addClass("activeplayer");
+                                
+                                $(".thrown").removeClass("thrown");
+                                let reset_darts = $(activeplayer).find('.dart')
+                                $.each(reset_darts, function() {
+                                    $(this).html('<i class="material-icons">send</i>')
+                                });
                             }                            
 
                             ajax_success = true

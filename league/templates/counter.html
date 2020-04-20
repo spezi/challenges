@@ -9,13 +9,16 @@
             onclick="document.getElementById('code').value=document.getElementById('code').value + {{i}};">
             {{i}}
             </button>-->
+          
             <button type="button"
                 class="counterbtn numberbtn ctbutton"
                 data-value="{{i}}">
                 {{i}}
             </button>
+           
 
         {% endfor%}
+            <button type="button" class="counterbtn btn-danger numberbtn ctbutton" data-value="0">miss</button>
             <button type="button" class="btn_double btn-primary ctbutton" data-value="x2">double</button>
             <button type="button" class="btn_tripple btn-primary ctbutton" data-value="x3">tripple</button>
             <button type="button" class="numberbtn btn-primary ctbutton" data-value="25">bull</button>

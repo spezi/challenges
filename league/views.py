@@ -328,19 +328,18 @@ class LegView(TemplateView):
 		throwed = len(self.current_player_darts) % 3 # 0 1 2 
 		print("throwed darts: " + str(len(self.current_player_darts)))
 		print("throwed module: " + str(throwed))
-		if self.current_player_points != self.current_league.mode.points: # damit am start nicht alle schon geworfen sind
-			if throwed == 1:
-				first = 'thrown'
-				self.current_dart_of_set = 1
-			if throwed == 2:
-				first = 'thrown'
-				second = 'thrown'
-				self.current_dart_of_set = 2
-			if throwed == 0:
-				first = 'thrown'
-				second = 'thrown'
-				third = 'thrown'
-				self.current_dart_of_set = 3
+		if throwed == 1:
+			first = 'thrown'
+			self.current_dart_of_set = 1
+		if throwed == 2:
+			first = 'thrown'
+			second = 'thrown'
+			self.current_dart_of_set = 2
+		if throwed == 0:
+			first = 'thrown'
+			second = 'thrown'
+			third = 'thrown'
+			self.current_dart_of_set = 3
 		throwed_darts = {'first': first,'second': second, 'third':third}
 		return throwed_darts
 
@@ -483,36 +482,38 @@ class LegView(TemplateView):
 
 		self.current_league = League.objects.get(pk=kwargs['league_id']) # um den modus zu bekommen
 		self.current_leg = Leg.objects.get(pk=kwargs['leg_id'])
+		try:
+			if self.throw['what'] == 'throw' and self.throw['player']:
+				self.current_player = Player.objects.get(pk=self.throw['player'])
+				self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
+				self.current_player_points = self.scoring()
+				self.throwed = self.get_player_throwed()
+				response= {'success': False }
 
-		if self.throw['what'] == 'throw':
-			self.current_player = Player.objects.get(pk=self.throw['player'])
-			self.current_player_darts = Dart.objects.filter(player=self.current_player, leg=self.current_leg)
-			self.current_player_points = self.scoring()
-			self.throwed = self.get_player_throwed()
-			response= {'success': False }
+				try:
+					response = self.score_dart()
+				except Exception as e:
+					print(str(e))
+					response = {'success': False }
 
-			try:
-				response = self.score_dart()
-			except Exception as e:
-				print(str(e))
-				response = {'success': False }
+				self.check_game_win(kwargs['game_id'])
+				return JsonResponse(response)
 
-			self.check_game_win(kwargs['game_id'])
-			return JsonResponse(response)
-
-		elif self.throw['what'] == 'undo':
-			print(self.current_leg.id)
-			try:
-				lastdart = Dart.objects.filter(leg=self.current_leg).last()
-				lastdart.delete()
-				print('gibts schon nen winner??')
-				print(self.current_leg.winner)
-				if self.current_leg.winner: 
-					self.current_leg.winner = None
-					self.current_leg.save()
-				return JsonResponse({'success': True })
-			except:
-				return JsonResponse({'success': False })
+			elif self.throw['what'] == 'undo':
+				print(self.current_leg.id)
+				try:
+					lastdart = Dart.objects.filter(leg=self.current_leg).last()
+					lastdart.delete()
+					print('gibts schon nen winner??')
+					print(self.current_leg.winner)
+					if self.current_leg.winner: 
+						self.current_leg.winner = None
+						self.current_leg.save()
+					return JsonResponse({'success': True })
+				except:
+					return JsonResponse({'success': False })
+		except:
+			return JsonResponse({'success': False })
 
 	def get_context_data(self, *args, league_id, game_id, leg_id, **kwargs):
 
@@ -581,5 +582,5 @@ class LegView(TemplateView):
 		context['leg'] = self.current_leg
 		context['players'] = self.players
 		context['activeplayer'] = activeplayer
-		context['range'] = range(21)
+		context['range'] = range(1, 21)
 		return context
