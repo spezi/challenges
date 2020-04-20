@@ -66,7 +66,7 @@ ROOT_URLCONF = 'challenges.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -144,3 +144,6 @@ if THIS_MACHINE != 'spezis-beast':
     STATIC_ROOT = "/var/www/challenger.heilfisten/challenges/static"
 
     STATIC_URL = '/static/'
+
+# Redirect to home URL after login (Default redirects to /accounts/profile/)
+LOGIN_REDIRECT_URL = '/'

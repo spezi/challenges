@@ -6,7 +6,7 @@ from .forms import *
 from django.http import JsonResponse
 from .tables import LeagueTable
 from .helper import Statistic, LegFake, LegFactory
-
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 import json
 
@@ -18,7 +18,9 @@ import json
 
 # Create your views here.
 
-class IndexView(TemplateView):
+class IndexView(LoginRequiredMixin,TemplateView):
+	login_url = '/accounts/login/'
+	redirect_field_name = 'redirect_to'
 	template_name = 'index.html'
 	add_league_form = AddLeagueForm()
 	add_league_mod_form = LeagueModesForm()
@@ -57,7 +59,9 @@ class IndexView(TemplateView):
 		context['title'] = 'welcome'
 		return context
 
-class LeagueView(TemplateView):
+class LeagueView(LoginRequiredMixin, TemplateView):
+	login_url = '/accounts/login/'
+	redirect_field_name = 'redirect_to'
 	template_name = 'league.html'
 	league_id = 0
 	league_members = [] 
@@ -224,7 +228,9 @@ class LeagueView(TemplateView):
 		context['remove_user_form'] = remove_player
 		return context
 
-class GameView(TemplateView):
+class GameView(LoginRequiredMixin, TemplateView):
+	login_url = '/accounts/login/'
+	redirect_field_name = 'redirect_to'
 	template_name = 'game.html'
 	players = set()
 
@@ -276,7 +282,9 @@ class GameView(TemplateView):
 		context['legs'] = out_legs
 		return context
 
-class LegView(TemplateView):
+class LegView(LoginRequiredMixin, TemplateView):
+	login_url = '/accounts/login/'
+	redirect_field_name = 'redirect_to'
 	template_name = 'leg.html'
 	players = []
 	overthrowed = False
