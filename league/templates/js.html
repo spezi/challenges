@@ -229,7 +229,7 @@
                             console.log(data.throwed)
                             var darts = $(activeplayer).find('.dart')
                             if (data.throwed.first) {
-                                if(!$(darts[0]).hasClass("thrown")) {
+                                if(!$(darts[0]).hasClass("thrown") && !data.overthrowed) {
                                     $(darts[0]).html(this_throw.points)
                                     if (this_throw.double) { 
                                         $(darts[0]).append('d/')
@@ -242,7 +242,7 @@
                                 $(darts[0]).addClass("thrown");   
                             }
                             if (data.throwed.second) {
-                                if(!$(darts[1]).hasClass("thrown")) {
+                                if(!$(darts[1]).hasClass("thrown") && !data.overthrowed) {
                                     $(darts[1]).html(this_throw.points)
                                     if (this_throw.double) { 
                                         $(darts[1]).append('d/')
@@ -256,7 +256,7 @@
                             }
                             // change active player
                             if(data.throwed.third) {       
-                                if(!$(darts[2]).hasClass("thrown")) {
+                                if(!$(darts[2]).hasClass("thrown") && !data.overthrowed) {
                                     $(darts[2]).html(this_throw.points)
                                     if (this_throw.double) { 
                                         $(darts[2]).append('d/')
